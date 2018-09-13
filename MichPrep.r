@@ -1,5 +1,6 @@
 #!/usr/bin/Rscript
 # This script was written by Oliver Pain whilst at Cardiff University under the supervision of Richard Anney.
+start.time <- Sys.time()
 suppressMessages(library("optparse"))
 
 option_list = list(
@@ -54,6 +55,16 @@ cat('#############################################
 #############################################
 
 Specified Options:\n',sep='')
+opt
+
+for(i in 1:length(opt)){
+	if(names(opt)[i] != 'perl_library'){
+		if(is.na(opt[names(opt)[i]]) == T){
+			cat('Error: --',names(opt)[i],' is not specified.\n.',sep='')
+			q()
+		}
+	}
+}
 
 sink()
 
@@ -66,9 +77,14 @@ setwd(opt$temp)
 
 # Create a frequency file for each dataset
 sink(file = paste0(opt$Output_dir,'/', opt$Output,'MichPrep.log'), append = T)
-paste0('Creating .frq file...')
+cat('Creating .frq file...',sep='')
 sink()
+
 system(paste0(opt$plink,' --freq --bfile ',opt$Input_dir,'/',opt$Input,' --out ',opt$Output))
+
+sink(file = paste0(opt$Output_dir,'/', opt$Output,'MichPrep.log'), append = T)
+cat('Done!\n',sep='')
+sink()
 
 # Run perl script
 sink(file = paste0(opt$Output_dir,'/', opt$Output,'MichPrep.log'), append = T)
@@ -102,7 +118,7 @@ cat('Converting plink files to vcf...',sep='')
 sink()
 
 for(i in 1:22){
-	system(paste0(opt$plink,' --bfile ',opt$Input,'-updated-chr',i,' --recode vcf --out ',opt$Input,'-updated-chr',i))
+	system(paste0(opt$plink,' --bfile ',opt$Input,'-updated-chr',i,' --recode vcf --keep-allele-order --out ',opt$Input,'-updated-chr',i))
 }
 
 sink(file = paste0(opt$Output_dir,'/', opt$Output,'MichPrep.log'), append = T)
@@ -161,6 +177,9 @@ if(!exists('error')){
 	system('rm -r temp')
 }
 
+end.time <- Sys.time()
+time.taken <- end.time - start.time
 sink(file = paste0(opt$Output_dir,'/', opt$Output,'MichPrep.log'), append = T)
-cat('Finished!',sep='')
+cat('Analysis finished at',as.character(end.time),'\n')
+cat('Analysis duration was',as.character(round(time.taken,3)),attr(time.taken, 'units'),'\n')
 sink()
