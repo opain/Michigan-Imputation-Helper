@@ -113,7 +113,7 @@ cat('Done!\n',sep='')
 sink()
 
 ######
-# 3. Convert to plink and remove variants that are non-biallelic, duplicates, or have Rsq less than 0.3.
+# 3. Convert to plink and remove variants that are non-biallelic, duplicates, or have Rsq less than 0.8.
 ######
 
 sink(file = paste0(opt$Output_dir,'/', opt$Output,'-PostMich.log'), append = T)
