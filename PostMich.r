@@ -129,12 +129,24 @@ for(i in genetic_files){
 	
 	# Merge with self and remove any variants that have more than 2+ alleles.
 	system(paste0(opt$plink,' --bfile ',opt$Output_dir,'/temp/chr',i,'.init --bmerge ',opt$Output_dir,'/temp/chr',i,'.init --merge-mode 6 --out ',opt$Output_dir,'/temp/chr',i,'.init'))
-	system(paste0(opt$plink,' --bfile ',opt$Output_dir,'/temp/chr',i,'.init --exclude ',opt$Output_dir,'/temp/chr',i,'.init.missnp --make-bed --out ',opt$Output_dir,'/temp/chr',i,'.init.bi'))
+	if(file.exists(paste0(opt$Output_dir,'/temp/chr',i,'.init.missnp'))){
+	  system(paste0(opt$plink,' --bfile ',opt$Output_dir,'/temp/chr',i,'.init --exclude ',opt$Output_dir,'/temp/chr',i,'.init.missnp --make-bed --out ',opt$Output_dir,'/temp/chr',i,'.init.bi'))
+	} else {
+	  system(paste0('mv ',opt$Output_dir,'/temp/chr',i,'.init.bed ', opt$Output_dir,'/temp/chr',i,'.init.bi.bed'))
+	  system(paste0('mv ',opt$Output_dir,'/temp/chr',i,'.init.bim ', opt$Output_dir,'/temp/chr',i,'.init.bi.bim'))
+	  system(paste0('mv ',opt$Output_dir,'/temp/chr',i,'.init.fam ', opt$Output_dir,'/temp/chr',i,'.init.bi.fam'))
+	}
 	
 	# Remove any variants with duplicate IDs.
 	system(paste0(opt$plink,' --bfile ',opt$Output_dir,'/temp/chr',i,'.init.bi --list-duplicate-vars ids-only suppress-first --out ',opt$Output_dir,'/temp/chr',i,'.init.bi'))
-	system(paste0(opt$plink,' --bfile ',opt$Output_dir,'/temp/chr',i,'.init.bi --exclude ',opt$Output_dir,'/temp/chr',i,'.init.bi.dupvar --make-bed --out ',opt$Output_dir,'/temp/chr',i,'.init.bi.noDup'))
-	
+	if(file.exists(paste0(opt$Output_dir,'/temp/chr',i,'.init.bi.dupvar'))){
+	  system(paste0(opt$plink,' --bfile ',opt$Output_dir,'/temp/chr',i,'.init.bi --exclude ',opt$Output_dir,'/temp/chr',i,'.init.bi.dupvar --make-bed --out ',opt$Output_dir,'/temp/chr',i,'.init.bi.noDup'))
+	} else {
+	  system(paste0('mv ',opt$Output_dir,'/temp/chr',i,'.init.bi.bed ', opt$Output_dir,'/temp/chr',i,'.init.bi.noDup.bed'))
+	  system(paste0('mv ',opt$Output_dir,'/temp/chr',i,'.init.bi.bim ', opt$Output_dir,'/temp/chr',i,'.init.bi.noDup.bim'))
+	  system(paste0('mv ',opt$Output_dir,'/temp/chr',i,'.init.bi.fam ', opt$Output_dir,'/temp/chr',i,'.init.bi.noDup.fam'))
+	}
+
 	# Extract variants with an R2 greater than 0.8.
 	system(paste0(opt$plink,' --bfile ',opt$Output_dir,'/temp/chr',i,'.init.bi.noDup --qual-scores ',opt$Output_dir,'/temp/chr',i,'.info 7 1 1 --qual-threshold 0.8 --make-bed --out ',opt$Output_dir,'/temp/chr',i,'.init.bi.noDup.Rsq3'))
 
